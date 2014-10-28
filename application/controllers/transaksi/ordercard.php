@@ -150,7 +150,6 @@ class Ordercard extends CI_Controller {
         $query = $this->record->getCustItem($ordcard_lot);
         foreach ($query->result() as $data)
         {
-            //echo json_encode(array('sesdate'=>$data->sesdate));
             echo json_encode(array('customer'=>$data->cust_name,'barang'=>$data->item_name));
         }
     }
