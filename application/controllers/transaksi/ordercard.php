@@ -193,7 +193,48 @@ class Ordercard extends CI_Controller {
         }
     }
     
+    function updateAfter()
+    {
+        $auth       = new Auth();
+        $auth->restrict();
+        
+        if(!isset($_POST))	
+            show_404();
+        
+        $packing_before = addslashes($_POST['aa']);
+        $create_date    = addslashes($_POST['bb']);
+        $packing_after  = addslashes($_POST['cc']);
+        if($this->record->updateAfter($packing_before, $create_date, $packing_after))
+        {
+            echo json_encode(array('success'=>true));
+        }
+        else
+        {
+            echo json_encode(array('success'=>false));
+        }
+    }
     
+    function updateBetween()
+    {
+        $auth       = new Auth();
+        $auth->restrict();
+        
+        if(!isset($_POST))	
+            show_404();
+        
+        $packing_before     = addslashes($_POST['dd']);
+        $after_create_date  = addslashes($_POST['ee']);
+        $before_create_date = addslashes($_POST['ff']);
+        $packing_after      = addslashes($_POST['gg']);
+        if($this->record->updateBetween($packing_before, $after_create_date, $before_create_date, $packing_after))
+        {
+            echo json_encode(array('success'=>true));
+        }
+        else
+        {
+            echo json_encode(array('success'=>false));
+        }
+    }
                 
 }
 

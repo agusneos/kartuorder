@@ -2,7 +2,61 @@
 <script type="text/javascript" src="<?=base_url('assets/easyui/datagrid-scrollview.js')?>"></script>
 <script type="text/javascript" src="<?=base_url('assets/easyui/datagrid-filter.js')?>"></script>
 <script type="text/javascript" src="<?=base_url('assets/webcamjs/webcam.js')?>"></script>
-
+<script type="text/javascript">
+    $.extend($.fn.datebox.defaults,{
+        formatter:function(date){
+            var y = date.getFullYear();
+            var m = date.getMonth()+1;
+            var d = date.getDate();
+            return y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d);
+        },
+        parser:function(s){
+            if (!s) return new Date();
+            var ss = (s.split('-'));
+            var y = parseInt(ss[0],10);
+            var m = parseInt(ss[1],10);
+            var d = parseInt(ss[2],10);
+            if (!isNaN(y) && !isNaN(m) && !isNaN(d)){
+                return new Date(y,m-1,d);
+            } else {
+                return new Date();
+            }
+        }
+    });
+        
+    $.extend($.fn.datetimebox.defaults,{
+        formatter:function(date){
+            var h = date.getHours();
+            var M = date.getMinutes();
+            var s = date.getSeconds();
+            function formatNumber(value){
+                return (value < 10 ? '0' : '') + value;
+            }
+            var separator = $(this).datetimebox('spinner').timespinner('options').separator;
+            var r = $.fn.datebox.defaults.formatter(date) + ' ' + formatNumber(h)+separator+formatNumber(M);
+            if ($(this).datetimebox('options').showSeconds){
+                r += separator+formatNumber(s);
+            }
+            return r;
+        },
+        parser:function(s){
+            if ($.trim(s) == ''){
+                return new Date();
+            }
+            var dt = s.split(' ');
+            var d = $.fn.datebox.defaults.parser(dt[0]);
+            if (dt.length < 2){
+                return d;
+            }
+            var separator = $(this).datetimebox('spinner').timespinner('options').separator;
+            var tt = dt[1].split(separator);
+            var hour = parseInt(tt[0], 10) || 0;
+            var minute = parseInt(tt[1], 10) || 0;
+            var second = parseInt(tt[2], 10) || 0;
+            return new Date(d.getFullYear(), d.getMonth(), d.getDate(), hour, minute, second);
+        }
+    });
+</script>
 <!-- Data Grid -->
 <table id="grid-transaksi_ordercard"
     data-options="pageSize:50, multiSort:true, remoteSort:false, rownumbers:true, singleSelect:true, 
@@ -46,6 +100,14 @@
         text:'Refresh',
         iconCls:'icon-reload',
         handler:function(){$('#grid-transaksi_ordercard').datagrid('reload');}
+    },{
+        text:'Update Tgl. Packing After',
+        iconCls:'icon-date',
+        handler:function(){transaksiOrdercardAfter();}
+    },{
+        text:'Update Tgl. Packing Between',
+        iconCls:'icon-date',
+        handler:function(){transaksiOrdercardBetween();}
     }];
     
     $('#grid-transaksi_ordercard').datagrid({view:scrollview,remoteFilter:true,
@@ -62,12 +124,13 @@
             },'json'); //ambil session date
 
         Webcam.set({
-            width: 427,
+            width: 430,
             height: 240,
             dest_width: 1280,
             dest_height: 720,
+            force_flash: true,
             image_format: 'jpeg',
-            jpeg_quality: 99
+            jpeg_quality: 90
         });
         Webcam.setSWFLocation('assets/webcamjs/webcam.swf');
         Webcam.attach( '#webcam' );
@@ -240,26 +303,6 @@
         }
     }
 
-    function dateboxFormatter(date)
-    {
-        var y = date.getFullYear();
-        var m = date.getMonth()+1;
-        var d = date.getDate();
-        return y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d);
-    }
-    function dateboxParser(s)
-    {
-        if (!s) return new Date();
-        var ss = (s.split('-'));
-        var y = parseInt(ss[0],10);
-        var m = parseInt(ss[1],10);
-        var d = parseInt(ss[2],10);
-        if (!isNaN(y) && !isNaN(m) && !isNaN(d)){
-            return new Date(y,m-1,d);
-        } else {
-            return new Date();
-        }
-    }    
     
     function capture() {
         Webcam.snap( function(data_uri) {
@@ -297,14 +340,88 @@
             }
         },'json');
     }
-
+    
+    function transaksiOrdercardAfter()
+    {
+        $('#dlg-transaksi_ordercard-after').dialog({modal: true, closable: false}).dialog('open').dialog('setTitle','Ubah Data');
+        $('#fm-transaksi_ordercard-after').form('clear');
+        url = '<?php echo site_url('transaksi/ordercard/updateAfter'); ?>';
+    }
+    
+    function transaksiOrdercardAfterSave()
+    {
+        $('#fm-transaksi_ordercard-after').form('submit',{
+            url: url,
+            onSubmit: function(){
+                return $(this).form('validate');
+            },
+            success: function(result){
+                var result = eval('('+result+')');
+                if(result.success){
+                    $('#grid-transaksi_ordercard').datagrid('reload');
+                    $('#dlg-transaksi_ordercard-after').dialog('close');
+                    $.messager.show({
+                        title: 'Info',
+                        msg: 'Ubah Data Berhasil'
+                    });
+                } else {
+                    $.messager.show({
+                        title: 'Error',
+                        msg: 'Ubah Data Gagal'
+                    });
+                }
+            }
+        });
+    }
+    
+    function transaksiOrdercardBetween()
+    {
+        $('#dlg-transaksi_ordercard-between').dialog({modal: true, closable: false}).dialog('open').dialog('setTitle','Ubah Data');
+        $('#fm-transaksi_ordercard-between').form('clear');
+        url = '<?php echo site_url('transaksi/ordercard/updateBetween'); ?>';
+    }
+    
+    function transaksiOrdercardBetweenSave()
+    {
+        $('#fm-transaksi_ordercard-between').form('submit',{
+            url: url,
+            onSubmit: function(){
+                return $(this).form('validate');
+            },
+            success: function(result){
+                var result = eval('('+result+')');
+                if(result.success){
+                    $('#grid-transaksi_ordercard').datagrid('reload');
+                    $('#dlg-transaksi_ordercard-between').dialog('close');
+                    $.messager.show({
+                        title: 'Info',
+                        msg: 'Ubah Data Berhasil'
+                    });
+                } else {
+                    $.messager.show({
+                        title: 'Error',
+                        msg: 'Ubah Data Gagal'
+                    });
+                }
+            }
+        });
+    }
+    
 </script>
 <style type="text/css">
     #fm-transaksi_ordercard{
         margin:0;
         padding:10px 30px;
     }
-     #fm-transaksi_ordercard-edit{
+    #fm-transaksi_ordercard-edit{
+        margin:0;
+        padding:10px 30px;
+    }
+    #fm-transaksi_ordercard-after{
+        margin:0;
+        padding:10px 30px;
+    }
+    #fm-transaksi_ordercard-between{
         margin:0;
         padding:10px 30px;
     }
@@ -369,8 +486,7 @@
             </div>
             <div class="fitem">
                 <label for="type">Tanggal Packing</label>
-                <input id="ordcard_packing" name="ordcard_packing" class="easyui-datebox" data-options="
-                    formatter:dateboxFormatter, parser:dateboxParser" required="true"/>
+                <input id="ordcard_packing" name="ordcard_packing" class="easyui-datebox" required="true"/>
             </div>
         </div>
     </form>
@@ -394,8 +510,7 @@
         </div>
         <div class="fitem">
             <label for="type">Tanggal Packing</label>
-            <input type="text" id="ordcard_packing" name="ordcard_packing" class="easyui-datebox" data-options="
-                formatter:dateboxFormatter, parser:dateboxParser" required="true"/>
+            <input type="text" id="ordcard_packing" name="ordcard_packing" class="easyui-datebox" required="true"/>
         </div>
     </form>
 </div>
@@ -410,8 +525,7 @@
     <form id="fm-transaksi_ordercard_sesdate" method="post" novalidate>
         <div class="fitem">
             <label for="type">Session Date</label>
-            <input id="sesdate" name="sesdate" class="easyui-datebox" data-options="
-                formatter:dateboxFormatter, parser:dateboxParser" required="true"/>
+            <input id="sesdate" name="sesdate" class="easyui-datebox" required="true"/>
         </div>
     </form>
 </div>
@@ -420,6 +534,56 @@
 <div id="dlg-buttons-transaksi_ordercard_sesdate">
     <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-ok" onclick="transaksiOrdercardSesdateSave()">Simpan</a>
     <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-cancel" onclick="javascript:$('#dlg-transaksi_ordercard_sesdate').dialog('close')">Batal</a>
+</div>
+
+<div id="dlg-transaksi_ordercard-after" class="easyui-dialog" style="width:400px; height:300px; padding: 10px 20px" closed="true" buttons="#dlg-buttons-transaksi_ordercard-after">
+    <form id="fm-transaksi_ordercard-after" method="post" novalidate>        
+        <div class="fitem">
+            <label for="type">Tanggal Packing</label>
+            <input type="text" id="aa" name="aa" class="easyui-datebox" required="true"/>
+        </div>
+        <div class="fitem">
+            <label for="type">Setelah Input</label>
+            <input type="text" id="bb" name="bb" class="easyui-datetimebox" required="true"/>
+        </div>
+        <div class="fitem">
+            <label for="type">Update Ke Tanggal</label>
+            <input type="text" id="cc" name="cc" class="easyui-datebox" required="true"/>
+        </div>
+    </form>
+</div>
+
+<!-- Dialog Button -->
+<div id="dlg-buttons-transaksi_ordercard-after">
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-ok" onclick="transaksiOrdercardAfterSave()">Simpan</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-cancel" onclick="javascript:$('#dlg-transaksi_ordercard-after').dialog('close')">Batal</a>
+</div>
+
+<div id="dlg-transaksi_ordercard-between" class="easyui-dialog" style="width:400px; height:300px; padding: 10px 20px" closed="true" buttons="#dlg-buttons-transaksi_ordercard-between">
+    <form id="fm-transaksi_ordercard-between" method="post" novalidate>        
+        <div class="fitem">
+            <label for="type">Tanggal Packing</label>
+            <input type="text" id="dd" name="dd" class="easyui-datebox" required="true"/>
+        </div>
+        <div class="fitem">
+            <label for="type">Setelah Input</label>
+            <input type="text" id="ee" name="ee" class="easyui-datetimebox" required="true"/>
+        </div>
+        <div class="fitem">
+            <label for="type">Sebelum Input</label>
+            <input type="text" id="ff" name="ff" class="easyui-datetimebox" required="true"/>
+        </div>
+        <div class="fitem">
+            <label for="type">Update Ke Tanggal</label>
+            <input type="text" id="gg" name="gg" class="easyui-datebox" required="true"/>
+        </div>
+    </form>
+</div>
+
+<!-- Dialog Button -->
+<div id="dlg-buttons-transaksi_ordercard-between">
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-ok" onclick="transaksiOrdercardBetweenSave()">Simpan</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-cancel" onclick="javascript:$('#dlg-transaksi_ordercard-between').dialog('close')">Batal</a>
 </div>
 <!-- End of file v_ordercard.php -->
 <!-- Location: ./application/views/transaksi/v_ordercard.php -->

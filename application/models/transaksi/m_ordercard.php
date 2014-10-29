@@ -176,6 +176,24 @@ class M_ordercard extends CI_Model
         $this->db->where('lot_no',$ordcard_lot);
         return $this->db->get(self::$po);        
     }
+    
+    function updateAfter($packing_before, $create_date, $packing_after)
+    {
+        $this->db->where('ordcard_packing', $packing_before)
+                 ->where('ordcard_upload >= "'.$create_date.'"');
+        return $this->db->update(self::$table,array(
+            'ordcard_packing'=>$packing_after
+        ));
+    }
+    
+    function updateBetween($packing_before, $after_create_date, $before_create_date, $packing_after)
+    {
+        $this->db->where('ordcard_packing', $packing_before)
+                 ->where('ordcard_upload BETWEEN "'.$after_create_date.'" AND "'.$before_create_date.'"');
+        return $this->db->update(self::$table,array(
+            'ordcard_packing'=>$packing_after
+        ));
+    }
 }
 
 /* End of file m_ordcard.php */
