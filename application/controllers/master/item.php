@@ -79,6 +79,47 @@ class Item extends CI_Controller {
         }
     }
     
+    function upload()
+    {
+        $auth   = new Auth();
+        $auth->restrict();
+        
+        move_uploaded_file($_FILES["filea"]["tmp_name"],
+                "assets/temp_upload/" . $_FILES["filea"]["name"]);
+        $this->load->library('excel_reader');
+        $this->excel_reader->setOutputEncoding('CP1251');
+        $this->excel_reader->read('assets/temp_upload/' . $_FILES["filea"]["name"]);
+        error_reporting(E_ALL ^ E_NOTICE);
+        
+        // Get the contents of the first worksheet
+        $data = $this->excel_reader->sheets[0];
+        
+        // jumlah baris
+        $baris  = $data['numRows'];
+        $ok = 0;
+        $ng = 0;
+        
+        for ($i = 1; $i <= $baris; $i++)
+        {
+           $item_id   = $data['cells'][$i][1];
+           $item_name = $data['cells'][$i][2];
+           
+           $query   = $this->record->upload($item_id, $item_name);
+           if ($query)
+           {
+               $ok++;
+           }
+           else
+           {
+               $ng++;
+           }
+        }
+        unlink('assets/temp_upload/' . $_FILES["filea"]["name"]);
+        echo json_encode(array('success'=> true,
+                                'total' => 'Total Data: '.($baris),
+                                'ok'    => 'Data OK: '.$ok,
+                                'ng'    => 'Data NG: '.$ng));
+    }
                 
 }
 

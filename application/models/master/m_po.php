@@ -81,15 +81,26 @@ class M_po extends CI_Model
         
     function create()
     {
-        return $this->db->insert(self::$table,array(
-            'lot_no'=>$this->input->post('lot_no',true),
-            'po_no'=>$this->input->post('po_no',true),
-            'po_item'=>$this->input->post('po_item',true),
-            'po_date'=>$this->input->post('po_date',true),
-            'po_cust'=>$this->input->post('po_cust',true),
-            'po_qty'=>$this->input->post('po_qty',true),
-            'po_prod'=>$this->input->post('po_prod',true)
-        ));
+        $lot_no = $this->input->post('lot_no',true);
+        $this->db->where('lot_no', $lot_no);
+        $res = $this->db->get(self::$table);
+        
+        if($res->num_rows == 0)
+        {
+            return $this->db->insert(self::$table,array(
+                'lot_no'=>$lot_no,
+                'po_no'=>$this->input->post('po_no',true),
+                'po_item'=>$this->input->post('po_item',true),
+                'po_date'=>$this->input->post('po_date',true),
+                'po_cust'=>$this->input->post('po_cust',true),
+                'po_qty'=>$this->input->post('po_qty',true),
+                'po_prod'=>$this->input->post('po_prod',true)
+            ));
+        }
+        else
+        {
+            return false;
+        }        
     }
     
     function update($lot_no)
@@ -134,6 +145,33 @@ class M_po extends CI_Model
             array_push($data, $row); 
         }       
         return json_encode($data);
+    }
+    
+    function upload($po_no, $po_item, $po_date, $po_cust,
+                        $po_qty, $po_prod, $lot_no)
+    {
+        date_default_timezone_set('Asia/Jakarta');
+        $po_date = date("Y-m-d",($po_date - 25569)*86400);        
+        
+        $this->db->where('lot_no', $lot_no);
+        $res = $this->db->get(self::$table);
+        
+        if($res->num_rows == 0)
+        {
+            return $this->db->insert(self::$table,array(
+                'lot_no'=>$lot_no,
+                'po_no'=>$po_no,
+                'po_item'=>$po_item,
+                'po_date'=>$po_date,
+                'po_cust'=>$po_cust,
+                'po_qty'=>$po_qty,
+                'po_prod'=>$po_prod
+            ));
+        }
+        else
+        {
+            return false;
+        }
     }
         
 }

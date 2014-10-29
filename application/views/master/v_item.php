@@ -29,6 +29,10 @@
         iconCls:'icon-cancel',
         handler:function(){masterItemHapus();}
     },{
+        text:'Upload',
+        iconCls:'icon-upload',
+        handler:function(){masterItemUpload();}
+    },{
         text:'Refresh',
         iconCls:'icon-reload',
         handler:function(){$('#grid-master_item').datagrid('reload');}
@@ -136,6 +140,42 @@
         }
     }
 
+    function masterItemUpload()
+    {
+        $('#dlg-master_item-upload').dialog({modal: true}).dialog('open').dialog('setTitle','Upload File');
+        $('#fm-master_item-upload').form('reset');
+        urls = '<?php echo site_url('master/item/upload'); ?>/';
+    }
+    
+    function masterItemUploadSave()
+    {
+        $('#fm-master_item-upload').form('submit',{
+            url: urls,
+            onSubmit: function(){   
+                return $(this).form('validate');
+            },
+            success: function(result){
+                var result = eval('('+result+')');
+                if(result.success)
+                {
+                    
+                    $('#dlg-master_item-upload').dialog('close');
+                    $('#grid-master_item').datagrid('reload');
+                    $.messager.show({
+                            title: 'Info',
+                            msg: result.total + ' ' +result.ok + ' ' + result.ng
+                            });
+                } 
+                else 
+                {
+                    $.messager.show({
+                    title: 'Error',
+                    msg: 'Upload Data Gagal'
+                });
+                }
+            }
+        });
+    }
     
 </script>
 
@@ -145,6 +185,10 @@
         padding:10px 30px;
     }
      #fm-master_item-edit{
+        margin:0;
+        padding:10px 30px;
+    }
+    #fm-master_item-upload{
         margin:0;
         padding:10px 30px;
     }
@@ -168,6 +212,21 @@
     }
 </style>
 
+<div id="dlg-master_item-upload" class="easyui-dialog" style="width:400px; height:150px; padding: 10px 20px" closed="true" buttons="#dlg_buttons-master_item-upload">
+    <form id="fm-master_item-upload" method="post" enctype="multipart/form-data" novalidate>       
+        <div class="fitem">
+            <label for="type">File</label>
+            <input id="filea" name="filea" class="easyui-filebox" required="true"/>
+        </div> 
+    </form>
+</div>
+
+<!-- Dialog Button -->
+<div id="dlg_buttons-master_item-upload">
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-ok" onclick="masterItemUploadSave()">Simpan</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-cancel" onclick="javascript:$('#dlg-master_item-upload').dialog('close')">Batal</a>
+</div>
+<!-- ----------- -->
 <div id="dlg-master_item" class="easyui-dialog" style="width:600px; height:300px; padding: 10px 20px" closed="true" buttons="#dlg-buttons-master_item">
     <form id="fm-master_item" method="post" novalidate>        
         <div class="fitem">

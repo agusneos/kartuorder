@@ -34,6 +34,10 @@
         iconCls:'icon-cancel',
         handler:function(){masterPoHapus();}
     },{
+        text:'Upload',
+        iconCls:'icon-upload',
+        handler:function(){masterPoUpload();}
+    },{
         text:'Refresh',
         iconCls:'icon-reload',
         handler:function(){$('#grid-master_po').datagrid('reload');}
@@ -173,6 +177,43 @@
         }
     }
     
+    function masterPoUpload()
+    {
+        $('#dlg-master_po-upload').dialog({modal: true}).dialog('open').dialog('setTitle','Upload File');
+        $('#fm-master_po-upload').form('reset');
+        urls = '<?php echo site_url('master/po/upload'); ?>/';
+    }
+    
+    function masterPoUploadSave()
+    {
+        $('#fm-master_po-upload').form('submit',{
+            url: urls,
+            onSubmit: function(){   
+                return $(this).form('validate');
+            },
+            success: function(result){
+                var result = eval('('+result+')');
+                if(result.success)
+                {
+                    
+                    $('#dlg-master_po-upload').dialog('close');
+                    $('#grid-master_po').datagrid('reload');
+                    $.messager.show({
+                            title: 'Info',
+                            msg: result.total + ' ' +result.ok + ' ' + result.ng
+                            });
+                } 
+                else 
+                {
+                    $.messager.show({
+                    title: 'Error',
+                    msg: 'Upload Data Gagal'
+                });
+                }
+            }
+        });
+    }
+    
 </script>
 
 <style type="text/css">
@@ -181,6 +222,10 @@
         padding:10px 30px;
     }
      #fm-master_po-edit{
+        margin:0;
+        padding:10px 30px;
+    }
+    #fm-master_po-upload{
         margin:0;
         padding:10px 30px;
     }
@@ -204,6 +249,21 @@
     }
 </style>
 
+<div id="dlg-master_po-upload" class="easyui-dialog" style="width:400px; height:150px; padding: 10px 20px" closed="true" buttons="#dlg_buttons-master_po-upload">
+    <form id="fm-master_po-upload" method="post" enctype="multipart/form-data" novalidate>       
+        <div class="fitem">
+            <label for="type">File</label>
+            <input id="fileu" name="fileu" class="easyui-filebox" required="true"/>
+        </div> 
+    </form>
+</div>
+
+<!-- Dialog Button -->
+<div id="dlg_buttons-master_po-upload">
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-ok" onclick="masterPoUploadSave()">Simpan</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-cancel" onclick="javascript:$('#dlg-master_po-upload').dialog('close')">Batal</a>
+</div>
+<!-- ----------- -->
 <div id="dlg-master_po" class="easyui-dialog" style="width:600px; height:310px; padding: 10px 20px" closed="true" buttons="#dlg-buttons-master_po">
     <form id="fm-master_po" method="post" novalidate> 
         <div class="fitem">

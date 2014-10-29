@@ -75,10 +75,22 @@ class M_customer extends CI_Model
         
     function create()
     {
-        return $this->db->insert(self::$table,array(
-            'cust_id'=>$this->input->post('cust_id',true),
-            'cust_name'=>$this->input->post('cust_name',true)         
-        ));
+        $cust_id = $this->input->post('cust_id',true);
+        $this->db->where('cust_id', $cust_id);
+        $res = $this->db->get(self::$table);
+        
+        if($res->num_rows == 0)
+        {            
+            return $this->db->insert(self::$table,array(
+                'cust_id'=>$cust_id,
+                'cust_name'=>$this->input->post('cust_name',true)         
+            ));
+        }
+        else
+        {
+            return false;
+        }
+        
     }
     
     function update($cust_id)
@@ -92,6 +104,24 @@ class M_customer extends CI_Model
     function delete($cust_id)
     {
         return $this->db->delete(self::$table, array('cust_id' => $cust_id)); 
+    }
+    
+    function upload($cust_id, $cust_name)
+    {       
+        $this->db->where('cust_id', $cust_id);
+        $res = $this->db->get(self::$table);
+        
+        if($res->num_rows == 0)
+        {
+            return $this->db->insert(self::$table,array(
+                'cust_id'=>$cust_id,
+                'cust_name'=>$cust_name
+            ));
+        }
+        else
+        {
+            return false;
+        }
     }
         
 }

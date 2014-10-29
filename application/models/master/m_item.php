@@ -75,10 +75,22 @@ class M_item extends CI_Model
         
     function create()
     {
-        return $this->db->insert(self::$table,array(
-            'item_id'=>$this->input->post('item_id',true),
-            'item_name'=>$this->input->post('item_name',true)         
-        ));
+        $item_id = $this->input->post('item_id',true);
+        $this->db->where('item_id', $item_id);
+        $res = $this->db->get(self::$table);
+        
+        if($res->num_rows == 0)
+        {
+            return $this->db->insert(self::$table,array(
+                'item_id'=>$item_id,
+                'item_name'=>$this->input->post('item_name',true)         
+            ));
+        }
+        else
+        {
+            return false;
+        }      
+        
     }
     
     function update($item_id)
@@ -92,6 +104,24 @@ class M_item extends CI_Model
     function delete($item_id)
     {
         return $this->db->delete(self::$table, array('item_id' => $item_id)); 
+    }
+    
+    function upload($item_id, $item_name)
+    {       
+        $this->db->where('item_id', $item_id);
+        $res = $this->db->get(self::$table);
+        
+        if($res->num_rows == 0)
+        {
+            return $this->db->insert(self::$table,array(
+                'item_id'=>$item_id,
+                'item_name'=>$item_name
+            ));
+        }
+        else
+        {
+            return false;
+        }
     }
         
 }
