@@ -343,7 +343,7 @@
     
     function transaksiOrdercardAfter()
     {
-        $('#dlg-transaksi_ordercard-after').dialog({modal: true, closable: false}).dialog('open').dialog('setTitle','Ubah Data');
+        $('#dlg-transaksi_ordercard-after').dialog({modal: true, closable: false}).dialog('open').dialog('setTitle','Update Tgl. Packing After');
         $('#fm-transaksi_ordercard-after').form('clear');
         url = '<?php echo site_url('transaksi/ordercard/updateAfter'); ?>';
     }
@@ -376,7 +376,7 @@
     
     function transaksiOrdercardBetween()
     {
-        $('#dlg-transaksi_ordercard-between').dialog({modal: true, closable: false}).dialog('open').dialog('setTitle','Ubah Data');
+        $('#dlg-transaksi_ordercard-between').dialog({modal: true, closable: false}).dialog('open').dialog('setTitle','Update Tgl. Packing Between');
         $('#fm-transaksi_ordercard-between').form('clear');
         url = '<?php echo site_url('transaksi/ordercard/updateBetween'); ?>';
     }
