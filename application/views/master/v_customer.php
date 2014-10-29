@@ -207,7 +207,7 @@
     }
     .fitem input{
         display:inline-block;
-        width:350px;
+        width:150px;
     }
 </style>
 
@@ -230,11 +230,11 @@
     <form id="fm-master_customer" method="post" novalidate>        
         <div class="fitem">
             <label for="type">Kode Pelanggan</label>
-            <input type="text" id="cust_id" name="cust_id" style="width:150px;" class="easyui-textbox" required="true"/>
+            <input type="text" id="cust_id" name="cust_id" class="easyui-textbox" required="true"/>
         </div>
         <div class="fitem">
             <label for="type">Nama Pelanggan</label>
-            <input type="text" id="cust_name" name="cust_name" class="easyui-textbox" required="true"/>
+            <input type="text" id="cust_name" name="cust_name" style="width:350px;" class="easyui-textbox" required="true"/>
         </div>
     </form>
 </div>
@@ -249,7 +249,7 @@
     <form id="fm-master_customer-edit" method="post" novalidate>        
         <div class="fitem">
             <label for="type">Nama Pelanggan</label>
-            <input type="text" id="cust_name" name="cust_name" class="easyui-textbox" required="true"/>
+            <input type="text" id="cust_name" name="cust_name" style="width:350px;" class="easyui-textbox" required="true"/>
         </div>
     </form>
 </div>
