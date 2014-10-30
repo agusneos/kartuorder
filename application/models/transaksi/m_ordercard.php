@@ -2,12 +2,13 @@
  
 class M_ordercard extends CI_Model
 {    
-    static $table   = 'ordcard';
-    static $po      = 'po';
-    static $item    = 'item';
-    static $cust    = 'cust';
-    static $image   = 'image_ordcard';
-    static $sesdate = 'session_date';
+    static $table           = 'ordcard';
+    static $po              = 'po';
+    static $item            = 'item';
+    static $cust            = 'cust';
+    static $image           = 'image_ordcard';
+    static $sesdate         = 'session_date';
+    static $po_cust_item    = 'po_cust_item';
      
     public function __construct() {
         parent::__construct();
@@ -171,10 +172,8 @@ class M_ordercard extends CI_Model
     function getCustItem($ordcard_lot)
     {
         $this->db->select('cust_name, item_name');
-        $this->db->join(self::$item, self::$po.'.po_item='.self::$item.'.item_id', 'left')
-                 ->join(self::$cust, self::$po.'.po_cust='.self::$cust.'.cust_id', 'left');
         $this->db->where('lot_no',$ordcard_lot);
-        return $this->db->get(self::$po);        
+        return $this->db->get(self::$po_cust_item);        
     }
     
     function updateAfter($packing_before, $create_date, $packing_after)

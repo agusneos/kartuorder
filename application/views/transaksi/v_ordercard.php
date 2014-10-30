@@ -138,6 +138,9 @@
         $('#capture').focus();
         $('#capture').bind('click', function(){
             $('#ordcard_lot').next().find('input').focus();
+            $('#customer').textbox('setValue', '');
+            $('#barang').textbox('setValue', '');
+            $('#ordcard_sub').textbox('setValue', '');
         });
         $('#ordcard_lot').textbox('textbox').keypress(function(e){
             if (e.keyCode == 13){                
@@ -157,6 +160,9 @@
                             },'json');
                         } else {
                             $('#ordcard_lot').textbox('setValue', '');
+                            $('#customer').textbox('setValue', '');
+                            $('#barang').textbox('setValue', '');
+                            $('#ordcard_sub').textbox('setValue', '');
                             $('#ordcard_lot').next().find('input').focus();
                             $.messager.show({
                                 title: 'Error',
