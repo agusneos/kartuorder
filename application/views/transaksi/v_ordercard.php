@@ -75,9 +75,10 @@
     </thead>
 </table>
 
-<script type="text/javascript">    
+<script type="text/javascript"> 
     var toolbar_transaksi_ordercard = [{
         text:'New',
+        id:'baru',
         iconCls:'icon-new_file',
         handler:function(){transaksiOrdercardCreate();}
     },{
@@ -113,10 +114,15 @@
     $('#grid-transaksi_ordercard').datagrid({view:scrollview,remoteFilter:true,
         url:'<?php echo site_url('transaksi/ordercard/index'); ?>?grid=true'})
         .datagrid('enableFilter');
+        
+    $(function(){	
+        $('#baru').focus(); // Saat awal membuka menu lagsung fokus ke tombol new
+    });
     
     function transaksiOrdercardCreate() {
         $('#dlg-transaksi_ordercard').dialog({modal: true, closable: false}).dialog('open').dialog('setTitle','Tambah Data');
         $('#fm-transaksi_ordercard').form('clear');
+        $('#oksave').blur();
         url = '<?php echo site_url('transaksi/ordercard/create'); ?>';
         
         $.post('<?php echo site_url('transaksi/ordercard/getDatePacking'); ?>',function(result){
@@ -172,7 +178,7 @@
                     },'json');
             }
         });
-        $('#ordcard_sub').textbox('textbox').keydown(function(e){
+        $('#ordcard_sub').textbox('textbox').keypress(function(e){
             if (e.keyCode == 13){
                     $('#oksave').focus();
             }
@@ -202,7 +208,7 @@
                 var result = eval('('+result+')');
                 if(result.success){
                     $('#dlg-transaksi_ordercard').dialog('close');
-                    $('#grid-transaksi_ordercard').datagrid('reload');
+                    //$('#grid-transaksi_ordercard').datagrid('reload');
                     transaksiOrdercardCreate();
                     $.messager.show({
                         title: 'Info',
