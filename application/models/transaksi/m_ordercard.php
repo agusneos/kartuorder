@@ -21,7 +21,7 @@ class M_ordercard extends CI_Model
         $rows   = isset($_POST['rows']) ? intval($_POST['rows']) : 50;
         $offset = ($page-1)*$rows;      
         $sort   = isset($_POST['sort']) ? strval($_POST['sort']) : 'ordcard_id';
-        $order  = isset($_POST['order']) ? strval($_POST['order']) : 'asc';
+        $order  = isset($_POST['order']) ? strval($_POST['order']) : 'desc';
         
         $filterRules = isset($_POST['filterRules']) ? ($_POST['filterRules']) : '';
 	$cond = '1=1';
@@ -61,8 +61,7 @@ class M_ordercard extends CI_Model
         $this->db->join(self::$po, self::$table.'.ordcard_lot='.self::$po.'.lot_no', 'left')
                  ->join(self::$item, self::$po.'.po_item='.self::$item.'.item_id', 'left')
                  ->join(self::$cust, self::$po.'.po_cust='.self::$cust.'.cust_id', 'left');
-        $this->db->from(self::$table);
-        $total  = $this->db->count_all_results();
+        $total  = $this->db->count_all_results(self::$table);
         
         $this->db->where($cond, NULL, FALSE);
         $this->db->join(self::$po, self::$table.'.ordcard_lot='.self::$po.'.lot_no', 'left')
@@ -85,13 +84,12 @@ class M_ordercard extends CI_Model
         return json_encode($result);          
     }   
         
-    function create()
+    function create($ordcard_lot, $ordcard_sub, $ordcard_packing)
     {
-        $img = $this->input->post('img',true);
         return $this->db->insert(self::$table,array(
-            'ordcard_packing'=>$this->input->post('ordcard_packing',true),
-            'ordcard_lot'=>$this->input->post('ordcard_lot',true),
-            'ordcard_sub'=>$this->input->post('ordcard_sub',true)
+            'ordcard_lot'       => $ordcard_lot,
+            'ordcard_sub'       => $ordcard_sub,
+            'ordcard_packing'   => $ordcard_packing
         ));
     }
     
@@ -104,18 +102,18 @@ class M_ordercard extends CI_Model
     function createImg($id, $img)
     {
         return $this->db->insert(self::$image,array(
-            'id'=>$id,
-            'img'=>$img
+            'id'    => $id,
+            'img'   => $img
         ));
     }      
     
-    function update($ordcard_id)
+    function update($ordcard_id, $ordcard_lot, $ordcard_sub, $ordcard_packing)
     {
         $this->db->where('ordcard_id', $ordcard_id);
         return $this->db->update(self::$table,array(
-            'ordcard_packing'=>$this->input->post('ordcard_packing',true),
-            'ordcard_lot'=>$this->input->post('ordcard_lot',true),
-            'ordcard_sub'=>$this->input->post('ordcard_sub',true)
+            'ordcard_lot'       => $ordcard_lot,
+            'ordcard_sub'       => $ordcard_sub,
+            'ordcard_packing'   => $ordcard_packing
         ));
     }
     
@@ -158,7 +156,7 @@ class M_ordercard extends CI_Model
     function updateSesdate($sesdate)
     {
         return $this->db->update(self::$sesdate,array(
-            'sesdate'=>$sesdate
+            'sesdate'   => $sesdate
         ));
     }
     
@@ -181,7 +179,7 @@ class M_ordercard extends CI_Model
         $this->db->where('ordcard_packing', $packing_before)
                  ->where('ordcard_upload >= "'.$create_date.'"');
         return $this->db->update(self::$table,array(
-            'ordcard_packing'=>$packing_after
+            'ordcard_packing'   => $packing_after
         ));
     }
     
@@ -190,7 +188,7 @@ class M_ordercard extends CI_Model
         $this->db->where('ordcard_packing', $packing_before)
                  ->where('ordcard_upload BETWEEN "'.$after_create_date.'" AND "'.$before_create_date.'"');
         return $this->db->update(self::$table,array(
-            'ordcard_packing'=>$packing_after
+            'ordcard_packing'   => $packing_after
         ));
     }
 }

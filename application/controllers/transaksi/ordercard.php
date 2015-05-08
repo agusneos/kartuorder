@@ -31,8 +31,12 @@ class Ordercard extends CI_Controller {
         if(!isset($_POST))	
             show_404();
         
-        $img    = addslashes($_POST['img']);
-        $data   = $this->record->create();
+        $img                = addslashes($_POST['img']);
+        $ordcard_lot        = addslashes($_POST['ordcard_lot']);
+        $ordcard_sub        = addslashes($_POST['ordcard_sub']);
+        $ordcard_packing    = addslashes($_POST['ordcard_packing']);
+        
+        $data   = $this->record->create($ordcard_lot, $ordcard_sub, $ordcard_packing);
         
         $query = $this->record->selectLastOrdcard();        
         foreach ($query->result() as $value)
@@ -58,7 +62,11 @@ class Ordercard extends CI_Controller {
         if(!isset($_POST))	
             show_404();
 
-        if($this->record->update($ordcard_id))
+        $ordcard_lot        = addslashes($_POST['ordcard_lot']);
+        $ordcard_sub        = addslashes($_POST['ordcard_sub']);
+        $ordcard_packing    = addslashes($_POST['ordcard_packing']);
+        
+        if($this->record->update($ordcard_id, $ordcard_lot, $ordcard_sub, $ordcard_packing))
         {
             echo json_encode(array('success'=>true));
         }

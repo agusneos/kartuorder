@@ -4,7 +4,7 @@
 
 <!-- Data Grid -->
 <table id="grid-master_item"
-    data-options="pageSize:50, multiSort:true, remoteSort:false, rownumbers:true, singleSelect:true, 
+    data-options="pageSize:50, multiSort:true, remoteSort:true, rownumbers:true, singleSelect:true, 
                 fit:true, fitColumns:true, toolbar:toolbar_master_item">
     <thead>
         <tr>

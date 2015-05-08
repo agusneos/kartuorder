@@ -60,6 +60,20 @@
         });
     });   
     
+    $('#submit-login').keyup(function() {
+        $.post('<?php echo site_url("main/proses_login"); ?>', $('#form-login').serialize(), function(e) {
+            if (e.success) {                
+                progress();
+            }
+            else {  
+                $('#form-login').form('clear');
+                $.messager.alert('Alert','Maaf Username atau Password Anda Salah!','error',function(){
+                    $('#username').next().find('input').focus();
+                }); 
+            }
+        });
+    });
+    
     $('#submit-login').keypress(function() {
         $.post('<?php echo site_url("main/proses_login"); ?>', $('#form-login').serialize(), function(e) {
             if (e.success) {                

@@ -59,7 +59,7 @@
 </script>
 <!-- Data Grid -->
 <table id="grid-transaksi_ordercard"
-    data-options="pageSize:50, multiSort:true, remoteSort:false, rownumbers:true, singleSelect:true, 
+    data-options="pageSize:50, multiSort:true, remoteSort:true, rownumbers:true, singleSelect:true, 
                 fit:true, fitColumns:true, toolbar:toolbar_transaksi_ordercard">
     <thead>
         <tr>
@@ -122,7 +122,7 @@
     function transaksiOrdercardCreate() {
         $('#dlg-transaksi_ordercard').dialog({modal: true, closable: false}).dialog('open').dialog('setTitle','Tambah Data');
         $('#fm-transaksi_ordercard').form('clear');
-        $('#oksave').blur();
+        //$('#oksave').blur();
         url = '<?php echo site_url('transaksi/ordercard/create'); ?>';
         
         $.post('<?php echo site_url('transaksi/ordercard/getDatePacking'); ?>',function(result){
@@ -139,50 +139,69 @@
             jpeg_quality: 90
         });
         Webcam.setSWFLocation('assets/webcamjs/webcam.swf');
-        Webcam.attach( '#webcam' );
+        Webcam.attach('#webcam');
         
+        $('#capture').linkbutton({
+            iconCls: '',
+            text:'Capture'
+        });
         $('#capture').focus();
         $('#capture').bind('click', function(){
-            $('#ordcard_lot').next().find('input').focus();
+            $('#capture').linkbutton({
+                iconCls: 'icon-ok',
+                text:'OK'
+            });            
+            $('#ordcard_lot').textbox('setValue', '');
             $('#customer').textbox('setValue', '');
             $('#barang').textbox('setValue', '');
             $('#ordcard_sub').textbox('setValue', '');
+            $('#ordcard_lot').next().find('input').focus();
         });
+       
         $('#ordcard_lot').textbox('textbox').keypress(function(e){
-            if (e.keyCode == 13){                
-                $('#ordcard_sub').next().find('input').focus();
+            if (e.which === 13){                
+               $('#chlot').focus();
             }
         });
-        $('#ordcard_sub').textbox('textbox').keyup(function(e){
-            if (e.keyCode == 13){
-                
-            var lotid = $('#ordcard_lot').textbox('getValue');
-                $.post('<?php echo site_url('transaksi/ordercard/cekLot'); ?>',{ordcard_lot:lotid},function(result){
-                        if (result.success){
-                            $('#ordcard_sub').next().find('input').focus();
-                            $.post('<?php echo site_url('transaksi/ordercard/getCustItem'); ?>',{ordcard_lot:lotid},function(result){
-                                $('#customer').textbox('setValue', result.customer);
-                                $('#barang').textbox('setValue', result.barang);
-                            },'json');
-                        } else {
-                            $('#ordcard_lot').textbox('setValue', '');
-                            $('#customer').textbox('setValue', '');
-                            $('#barang').textbox('setValue', '');
-                            $('#ordcard_sub').textbox('setValue', '');
-                            $('#ordcard_lot').next().find('input').focus();
-                            $.messager.show({
-                                title: 'Error',
-                                msg: 'Lot Tidak Ditemukan'
-                            });
-                        }
-                    },'json');
-            }
+        
+        $('#chlot').bind('click', function(){
+            $('#ordcard_sub').next().find('input').focus();
         });
+        
         $('#ordcard_sub').textbox('textbox').keypress(function(e){
-            if (e.keyCode == 13){
+            if (e.which === 13){
                     $('#oksave').focus();
             }
         });
+    }
+    
+    function capture() {
+        Webcam.snap( function(data_uri) {
+            $('#img').textbox('setValue',data_uri);
+        });
+    }
+    
+    function checkLot() {
+        var lotid = $('#ordcard_lot').textbox('getValue');
+        $.post('<?php echo site_url('transaksi/ordercard/cekLot'); ?>',{ordcard_lot:lotid},function(result){
+            if (result.success){
+                $('#ordcard_sub').next().find('input').focus();
+                $.post('<?php echo site_url('transaksi/ordercard/getCustItem'); ?>',{ordcard_lot:lotid},function(result){
+                    $('#customer').textbox('setValue', result.customer);
+                    $('#barang').textbox('setValue', result.barang);
+                },'json');
+            } else {
+                $('#ordcard_lot').textbox('setValue', '');
+                $('#customer').textbox('setValue', '');
+                $('#barang').textbox('setValue', '');
+                $('#ordcard_sub').textbox('setValue', '');
+                $('#ordcard_lot').next().find('input').focus();
+                $.messager.show({
+                    title: 'Error',
+                    msg: 'Lot Tidak Ditemukan'
+                });
+            }
+        },'json');
     }
     
     function transaksiOrdercardUpdate() {
@@ -315,13 +334,6 @@
         }
     }
 
-    
-    function capture() {
-        Webcam.snap( function(data_uri) {
-            $('#img').textbox('setValue',data_uri);
-        });
-    }
-    
     function transaksiOrdercardSesdate()
     {
         $('#dlg-transaksi_ordercard_sesdate').dialog({modal: true}).dialog('open').dialog('setTitle','Ubah Session Date');
@@ -466,7 +478,7 @@
 
 </style>
 
-<div id="dlg-transaksi_ordercard" class="easyui-dialog" style="width:600px; height:570px; padding: 10px 20px" closed="true" buttons="#dlg-buttons-transaksi_ordercard">
+<div id="dlg-transaksi_ordercard" class="easyui-dialog" style="width:650px; height:600px; padding: 10px 20px" closed="true" buttons="#dlg-buttons-transaksi_ordercard">
     <form id="fm-transaksi_ordercard" method="post" novalidate> 
         <div class="easyui-panel" data-options="style:{margin:'1% auto'}" style="position:relative;overflow:hidden;width:427px;height:240px">
             <div id="webcam">
@@ -477,16 +489,17 @@
         </div>
         <div class="grup2">
             <div class="fitem">
-                <label for="type">Data</label>
+                <label for="type"></label>
                 <input id="img" name="img" class="easyui-textbox" data-options="readonly: true"/>
             </div>
             <div class="fitem">
                 <label for="type">No Lot</label>
-                <input id="ordcard_lot" name="ordcard_lot" class="easyui-textbox" required="true"/>
+                <input id="ordcard_lot" name="ordcard_lot" class="easyui-textbox" required="true" tabindex="1"/>
+                <a id="chlot" href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="checkLot()"></a>
             </div>
             <div class="fitem">
                 <label for="type">Sub Lot</label>
-                <input id="ordcard_sub" name="ordcard_sub" class="easyui-textbox" required="true"/>
+                <input id="ordcard_sub" name="ordcard_sub" class="easyui-textbox" required="true" tabindex="2"/>
             </div>
             <div class="fitem">
                 <label for="type">Customer</label>
@@ -506,8 +519,8 @@
 
 <!-- Dialog Button -->
 <div id="dlg-buttons-transaksi_ordercard">
-    <a href="javascript:void(0)" id="oksave" class="easyui-linkbutton" data-options="width:75" iconCls="icon-ok" onclick="transaksiOrdercardSave()">Simpan</a>
-    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-cancel" onclick="javascript:$('#dlg-transaksi_ordercard').dialog('close');Webcam.reset();">Batal</a>
+    <a href="javascript:void(0)" id="oksave" class="easyui-linkbutton c1" data-options="width:75" iconCls="icon-save" tabindex="3" onclick="transaksiOrdercardSave()">Simpan</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton c5" data-options="width:75" iconCls="icon-cancel" onclick="javascript:$('#dlg-transaksi_ordercard').dialog('close');Webcam.reset();$('#grid-transaksi_ordercard').datagrid('reload');">Batal</a>
 </div>
 
 <div id="dlg-transaksi_ordercard-edit" class="easyui-dialog" style="width:400px; height:300px; padding: 10px 20px" closed="true" buttons="#dlg-buttons-transaksi_ordercard-edit">

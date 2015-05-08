@@ -53,18 +53,19 @@ class M_po extends CI_Model
             }
 	}
         
+        $this->db->select('a.*, b.item_name AS "b.item_name", c.cust_name AS "c.cust_name"', NULL);
+        $this->db->join(self::$item.' b', 'a.po_item = b.item_id', 'left')
+                 ->join(self::$cust.' c', 'a.po_cust = c.cust_id', 'left');
         $this->db->where($cond, NULL, FALSE);
-        $this->db->join(self::$item, self::$table.'.po_item='.self::$item.'.item_id', 'left')
-                 ->join(self::$cust, self::$table.'.po_cust='.self::$cust.'.cust_id', 'left');
-        $this->db->from(self::$table);
-        $total  = $this->db->count_all_results();
+        $total  = $this->db->count_all_results(self::$table.' a');
         
+        $this->db->select('a.*, b.item_name AS "b.item_name", c.cust_name AS "c.cust_name"', NULL);
+        $this->db->join(self::$item.' b', 'a.po_item = b.item_id', 'left')
+                 ->join(self::$cust.' c', 'a.po_cust = c.cust_id', 'left');
         $this->db->where($cond, NULL, FALSE);
-        $this->db->join(self::$item, self::$table.'.po_item='.self::$item.'.item_id', 'left')
-                 ->join(self::$cust, self::$table.'.po_cust='.self::$cust.'.cust_id', 'left');
         $this->db->order_by($sort, $order);
         $this->db->limit($rows, $offset);
-        $query  = $this->db->get(self::$table);
+        $query  = $this->db->get(self::$table.' a');
                    
         $data = array();
         foreach ( $query->result() as $row )
@@ -79,22 +80,22 @@ class M_po extends CI_Model
         return json_encode($result);          
     }   
         
-    function create()
+    function create($po_no, $po_date, $lot_no, $po_cust,
+                    $po_item, $po_qty, $po_prod)
     {
-        $lot_no = $this->input->post('lot_no',true);
         $this->db->where('lot_no', $lot_no);
         $res = $this->db->get(self::$table);
         
         if($res->num_rows == 0)
         {
             return $this->db->insert(self::$table,array(
-                'lot_no'=>$lot_no,
-                'po_no'=>$this->input->post('po_no',true),
-                'po_item'=>$this->input->post('po_item',true),
-                'po_date'=>$this->input->post('po_date',true),
-                'po_cust'=>$this->input->post('po_cust',true),
-                'po_qty'=>$this->input->post('po_qty',true),
-                'po_prod'=>$this->input->post('po_prod',true)
+                'lot_no'    => $lot_no,
+                'po_no'     => $po_no,
+                'po_item'   => $po_item,
+                'po_date'   => $po_date,
+                'po_cust'   => $po_cust,
+                'po_qty'    => $po_qty,
+                'po_prod'   => $po_prod
             ));
         }
         else
@@ -103,16 +104,17 @@ class M_po extends CI_Model
         }        
     }
     
-    function update($lot_no)
+    function update($po_no, $po_date, $lot_no, $po_cust,
+                    $po_item, $po_qty, $po_prod)
     {
         $this->db->where('lot_no', $lot_no);
         return $this->db->update(self::$table,array(
-            'po_no'=>$this->input->post('po_no',true),
-            'po_item'=>$this->input->post('po_item',true),
-            'po_date'=>$this->input->post('po_date',true),
-            'po_cust'=>$this->input->post('po_cust',true),
-            'po_qty'=>$this->input->post('po_qty',true),
-            'po_prod'=>$this->input->post('po_prod',true)
+            'po_no'     => $po_no,
+            'po_item'   => $po_item,
+            'po_date'   => $po_date,
+            'po_cust'   => $po_cust,
+            'po_qty'    => $po_qty,
+            'po_prod'   => $po_prod
         ));
     }
     
@@ -121,8 +123,9 @@ class M_po extends CI_Model
         return $this->db->delete(self::$table, array('lot_no' => $lot_no)); 
     }
     
-    function getCust()
+    function getCust($q)
     {    
+        $this->db->like('cust_id', $q);
         $this->db->order_by('cust_name', 'asc');
         $query  = $this->db->get(self::$cust);
                    

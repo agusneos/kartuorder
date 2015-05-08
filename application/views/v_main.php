@@ -7,6 +7,7 @@
     <link rel="icon" type="image/png" href="<?=base_url('assets/easyui/themes/icons/camera.jpg')?>">
     <link rel="stylesheet" type="text/css" href="<?=base_url('assets/easyui/themes/default/easyui.css')?>">
     <link rel="stylesheet" type="text/css" href="<?=base_url('assets/easyui/themes/icon.css')?>">
+    <link rel="stylesheet" type="text/css" href="<?=base_url('assets/easyui/themes/color.css')?>">
     <script type="text/javascript" src="<?=base_url('assets/easyui/jquery.min.js')?>"></script>
     <script type="text/javascript" src="<?=base_url('assets/easyui/jquery.easyui.min.js')?>"></script>
     <script type="text/javascript">

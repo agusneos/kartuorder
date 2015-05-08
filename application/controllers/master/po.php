@@ -31,7 +31,16 @@ class Po extends CI_Controller {
         if(!isset($_POST))	
             show_404();
 
-        if($this->record->create())
+        $po_no      = addslashes($_POST['po_no']);
+        $po_date    = addslashes($_POST['po_date']);
+        $lot_no     = addslashes($_POST['lot_no']);
+        $po_cust    = addslashes($_POST['po_cust']);
+        $po_item    = addslashes($_POST['po_item']);
+        $po_qty     = addslashes($_POST['po_qty']);
+        $po_prod    = addslashes($_POST['po_prod']);
+        
+        if($this->record->create($po_no, $po_date, $lot_no, $po_cust,
+                                 $po_item, $po_qty, $po_prod))
         {
             echo json_encode(array('success'=>true));
         }
@@ -49,7 +58,15 @@ class Po extends CI_Controller {
         if(!isset($_POST))	
             show_404();
 
-        if($this->record->update($lot_no))
+        $po_no      = addslashes($_POST['po_no']);
+        $po_date    = addslashes($_POST['po_date']);
+        $po_cust    = addslashes($_POST['po_cust']);
+        $po_item    = addslashes($_POST['po_item']);
+        $po_qty     = addslashes($_POST['po_qty']);
+        $po_prod    = addslashes($_POST['po_prod']);
+        
+        if($this->record->update($po_no, $po_date, $lot_no, $po_cust,
+                                 $po_item, $po_qty, $po_prod))
         {
             echo json_encode(array('success'=>true));
         }
@@ -84,7 +101,9 @@ class Po extends CI_Controller {
         $auth       = new Auth();
         $auth->restrict();
         
-        echo $this->record->getCust();
+        $q = isset($_POST['q']) ? strval($_POST['q']) : '';
+        
+        echo $this->record->getCust($q);
     }   
     
     function getItem()
