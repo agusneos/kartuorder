@@ -4,7 +4,7 @@
  * Licensed under the GPL:
  *   http://www.gnu.org/licenses/gpl.txt
  *
- * Copyright 2011 stworthy [ stworthy@gmail.com ] 
+ * Copyright 2011-2015 www.jeasyui.com 
  * 
  * Dependencies:
  *   datagrid
@@ -12,47 +12,89 @@
  * 
  */
 (function($){
-	var currTarget;
+	// var oldLoadDataMethod = $.fn.datagrid.methods.loadData;
+	// $.fn.datagrid.methods.loadData = function(jq, data){
+	// 	jq.each(function(){
+	// 		$.data(this, 'datagrid').filterSource = null;
+	// 	});
+	// 	return oldLoadDataMethod.call($.fn.datagrid.methods, jq, data);
+	// };
+
+	var autoGrids = [];
+	function checkAutoGrid(){
+		autoGrids = $.grep(autoGrids, function(t){
+			return t.length && t.data('edatagrid');
+		});
+	}
+	function saveAutoGrid(omit){
+		checkAutoGrid();
+		$.map(autoGrids, function(t){
+			if (t[0] != $(omit)[0]){
+				t.edatagrid('saveRow');
+			}
+		});
+		checkAutoGrid();
+	}
+	function addAutoGrid(dg){
+		checkAutoGrid();
+		for(var i=0; i<autoGrids.length; i++){
+			if ($(autoGrids[i])[0] == $(dg)[0]){return;}
+		}
+		autoGrids.push($(dg));
+	}
+	function delAutoGrid(dg){
+		checkAutoGrid();
+		autoGrids = $.grep(autoGrids, function(t){
+			return $(t)[0] != $(dg)[0];
+		});
+	}
+
 	$(function(){
 		$(document).unbind('.edatagrid').bind('mousedown.edatagrid', function(e){
-			var p = $(e.target).closest('div.datagrid-view,div.combo-panel');
+			var p = $(e.target).closest('div.datagrid-view,div.combo-panel,div.window,div.window-mask');
 			if (p.length){
 				if (p.hasClass('datagrid-view')){
-					var dg = p.children('table');
-					if (dg.length && currTarget != dg[0]){
-						_save();
-					}
+					saveAutoGrid(p.children('table'));
 				}
 				return;
 			}
-			_save();
-			
-			function _save(){
-				var dg = $(currTarget);
-				if (dg.length){
-					dg.edatagrid('saveRow');
-					currTarget = undefined;
-				}
-			}
+			saveAutoGrid();
 		});
 	});
 	
 	function buildGrid(target){
 		var opts = $.data(target, 'edatagrid').options;
 		$(target).datagrid($.extend({}, opts, {
-			onDblClickCell:function(index,field){
+			onDblClickCell:function(index,field,value){
 				if (opts.editing){
 					$(this).edatagrid('editRow', index);
-					focusEditor(field);
+					focusEditor(target, field);
+				}
+				if (opts.onDblClickCell){
+					opts.onDblClickCell.call(target, index, field, value);
 				}
 			},
-			onClickCell:function(index,field){
+			onClickCell:function(index,field,value){
 				if (opts.editing && opts.editIndex >= 0){
 					$(this).edatagrid('editRow', index);
-					focusEditor(field);
+					focusEditor(target, field);
+				}
+				if (opts.onClickCell){
+					opts.onClickCell.call(target, index, field, value);
+				}
+			},
+			onBeforeEdit: function(index, row){
+				if (opts.onBeforeEdit){
+					if (opts.onBeforeEdit.call(target, index, row) == false){
+						return false;
+					}
+				}
+				if (opts.autoSave){
+					addAutoGrid(this);
 				}
 			},
 			onAfterEdit: function(index, row){
+				delAutoGrid(this);
 				opts.editIndex = -1;
 				var url = row.isNewRecord ? opts.saveUrl : opts.updateUrl;
 				if (url){
@@ -92,6 +134,7 @@
 				if (opts.onAfterEdit) opts.onAfterEdit.call(target, index, row);
 			},
 			onCancelEdit: function(index, row){
+				delAutoGrid(this);
 				opts.editIndex = -1;
 				if (row.isNewRecord) {
 					$(this).datagrid('deleteRow', index);
@@ -100,7 +143,6 @@
 			},
 			onBeforeLoad: function(param){
 				if (opts.onBeforeLoad.call(target, param) == false){return false}
-//				$(this).datagrid('rejectChanges');
 				$(this).edatagrid('cancelRow');
 				if (opts.tree){
 					var node = $(opts.tree).tree('getSelected');
@@ -110,17 +152,6 @@
 		}));
 		
 		
-		function focusEditor(field){
-			var editor = $(target).datagrid('getEditor', {index:opts.editIndex,field:field});
-			if (editor){
-				editor.target.focus();
-			} else {
-				var editors = $(target).datagrid('getEditors', opts.editIndex);
-				if (editors.length){
-					editors[0].target.focus();
-				}
-			}
-		}
 		
 		if (opts.tree){
 			$(opts.tree).tree({
@@ -145,6 +176,27 @@
 					});
 				}
 			});
+		}
+	}
+
+	function focusEditor(target, field){
+		var opts = $(target).edatagrid('options');
+		var t;
+		var editor = $(target).datagrid('getEditor', {index:opts.editIndex,field:field});
+		if (editor){
+			t = editor.target;
+		} else {
+			var editors = $(target).datagrid('getEditors', opts.editIndex);
+			if (editors.length){
+				t = editors[0].target;
+			}
+		}
+		if (t){
+			if ($(t).hasClass('textbox-f')){
+				$(t).textbox('textbox').focus();
+			} else {
+				$(t).focus();					
+			}
 		}
 	}
 	
@@ -182,6 +234,12 @@
 			var opts = $.data(jq[0], 'edatagrid').options;
 			return opts;
 		},
+		loadData: function(jq, data){
+			return jq.each(function(){
+				$(this).edatagrid('cancelRow');
+				$(this).datagrid('loadData', data);
+			});
+		},
 		enableEditing: function(jq){
 			return jq.each(function(){
 				var opts = $.data(this, 'edatagrid').options;
@@ -193,6 +251,11 @@
 				var opts = $.data(this, 'edatagrid').options;
 				opts.editing = false;
 			});
+		},
+		isEditing: function(jq, index){
+			var opts = $.data(jq[0], 'edatagrid').options;
+			var tr = opts.finder.getTr(jq[0], index);
+			return tr.length && tr.hasClass('datagrid-row-editing');
 		},
 		editRow: function(jq, index){
 			return jq.each(function(){
@@ -211,15 +274,11 @@
 						}
 						dg.datagrid('endEdit', editIndex);
 						dg.datagrid('beginEdit', index);
+						if (!dg.edatagrid('isEditing', index)){
+							return;
+						}
 						opts.editIndex = index;
-						
-						if (currTarget != this && $(currTarget).length){
-							$(currTarget).edatagrid('saveRow');
-							currTarget = undefined;
-						}
-						if (opts.autoSave){
-							currTarget = this;
-						}
+						focusEditor(this);
 						
 						var rows = dg.datagrid('getRows');
 						opts.onEdit.call(this, index, rows[index]);
@@ -372,6 +431,11 @@
 									dg.datagrid('deleteRow', index);
 								}
 								opts.onDestroy.call(dg[0], index, row);
+								var pager = dg.datagrid('getPager');
+								if (pager.length && !dg.datagrid('getRows').length){
+									dg.datagrid('options').pageNumber = pager.pagination('options').pageNumber;
+									dg.datagrid('reload');
+								}
 							}, 'json');
 						} else {
 							dg.datagrid('cancelEdit', index);
@@ -385,6 +449,7 @@
 	};
 	
 	$.fn.edatagrid.defaults = $.extend({}, $.fn.datagrid.defaults, {
+		singleSelect: true,
 		editing: true,
 		editIndex: -1,
 		destroyMsg:{
@@ -419,4 +484,7 @@
 		onDestroy: function(index, row){},
 		onError: function(index, row){}
 	});
+	
+	////////////////////////////////
+	$.parser.plugins.push('edatagrid');
 })(jQuery);

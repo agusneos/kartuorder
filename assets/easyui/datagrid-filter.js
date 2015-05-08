@@ -270,6 +270,12 @@
 			isMatch: function(source, value){
 				return source >= value;
 			}
+		},
+		is: {
+			text: 'Is',
+			isMatch: function(source, value){
+				return source +' IS '+ value;
+			}
 		}
 	};
 	$.fn.treegrid.defaults.operators = $.fn.datagrid.defaults.operators;
@@ -622,12 +628,16 @@
 			for(var i=0; i<fields.length; i++){
 				var field = fields[i];
 				var col = $(target).datagrid('getColumnOption', field);
-				if (col && (col.checkbox || col.expander)){
-					field = '_';
-				}
 				var td = $('<td></td>').attr('field', field).appendTo(tr);
-				if (col && col.hidden){td.hide();}
-				if (field == '_'){continue;}
+				if (col && col.hidden){
+					td.hide();
+				}
+				if (field == '_'){
+					continue;
+				}
+				if (col && (col.checkbox || col.expander)){
+					continue;
+				}
 				var div = $('<div class="datagrid-filter-c"></div>').appendTo(td);
 				
 				var fopts = getFilter(field);
@@ -761,6 +771,11 @@
 		},
 		getFilterComponent: function(jq, field){
 			return getFilterComponent(jq[0], field);
+		},
+		resizeFilter: function(jq, field){
+			return jq.each(function(){
+				resizeFilter(this, field);
+			});
 		}
 	});
 })(jQuery);

@@ -174,7 +174,8 @@ var scrollview = $.extend({}, $.fn.datagrid.defaults.view, {
 		var view = this;
 		
 		state.data.firstRows = state.data.rows;
-		
+		state.data.rows = [];
+
 		opts.finder = $.extend({}, $.fn.datagrid.defaults.finder, {
 			getRow: function(t, p){
 				var index = (typeof p == 'object') ? p.attr('datagrid-row-index') : p;
@@ -184,11 +185,14 @@ var scrollview = $.extend({}, $.fn.datagrid.defaults.view, {
 					row = v.rows[index - v.index];
 				}
 				return row;
+			},
+			getRows: function(target){
+				return $(target).datagrid('options').view.rows;
 			}
 		});
 		
 		dc.body1.add(dc.body2).empty();
-		this.rows = undefined;	// the rows to be rendered
+		this.rows = [];	// the rows to be rendered
 		this.r1 = this.r2 = [];	// the first part and last part of rows
 		
 		init();
@@ -215,7 +219,8 @@ var scrollview = $.extend({}, $.fn.datagrid.defaults.view, {
 			}, 0);
 		}
 		function scrolling(){
-			if (dc.body2.is(':empty')){
+			if (!opts.finder.getRows(target).length){
+			// if (dc.body2.is(':empty')){
 				reload.call(this);
 			} else {
 				if (!dc.body2.is(':visible')){return}
@@ -223,6 +228,7 @@ var scrollview = $.extend({}, $.fn.datagrid.defaults.view, {
 				
 				var topDiv = dc.body2.children('div.datagrid-btable-top');
 				var bottomDiv = dc.body2.children('div.datagrid-btable-bottom');
+				if (!topDiv.length || !bottomDiv.length){return;}
 				var top = topDiv.position().top + topDiv._outerHeight() - headerHeight;
 				var bottom = bottomDiv.position().top - headerHeight;
 
@@ -397,6 +403,26 @@ var scrollview = $.extend({}, $.fn.datagrid.defaults.view, {
 				total: state.data.total,
 				rows: this.rows
 			});
+		}
+	},
+
+	insertRow: function(target, index, row){
+		var state = $.data(target, 'datagrid');
+		var data = state.data;
+		
+		if (index == undefined || index == null) index = data.rows.length;
+		if (index > data.rows.length) index = data.rows.length;
+		$.fn.datagrid.defaults.view.insertRow.call(this, target, index, row);
+		if (data.firstRows && index < data.firstRows.length){
+			data.firstRows.splice(index, 0, row);
+		}
+	},
+
+	deleteRow: function(target, index){
+		var data = $(target).datagrid('getData');
+		$.fn.datagrid.defaults.view.deleteRow.call(this, target, index);
+		if (data.firstRows){
+			data.firstRows.splice(index, 1);
 		}
 	}
 });
