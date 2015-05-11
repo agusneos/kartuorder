@@ -134,19 +134,6 @@ class M_ordercard extends CI_Model
         return $this->db->get(self::$image);        
     }
     
-    function getLot()
-    {    
-        $this->db->order_by('lot_no', 'asc');
-        $query  = $this->db->get(self::$po);
-                   
-        $data = array();
-        foreach ( $query->result() as $row )
-        {
-            array_push($data, $row); 
-        }       
-        return json_encode($data);
-    }
-    
     function getDatePacking()
     {        
         $this->db->select('sesdate');
@@ -190,6 +177,18 @@ class M_ordercard extends CI_Model
         return $this->db->update(self::$table,array(
             'ordcard_packing'   => $packing_after
         ));
+    }
+    
+    function check($check_date)
+    {
+        $this->db->where('ordcard_packing', $check_date);
+        $total =  $this->db->count_all_results(self::$table);
+        
+        $result = array();
+        $result['success'] = true;
+        $result['tgl'] = $check_date;
+        $result['total'] = $total;
+        return json_encode($result);
     }
 }
 

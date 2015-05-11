@@ -52,8 +52,7 @@ class M_item extends CI_Model
 	}
         
         $this->db->where($cond, NULL, FALSE);
-        $this->db->from(self::$table);
-        $total  = $this->db->count_all_results();
+        $total  = $this->db->count_all_results(self::$table);
         
         $this->db->where($cond, NULL, FALSE);
         $this->db->order_by($sort, $order);
@@ -73,17 +72,16 @@ class M_item extends CI_Model
         return json_encode($result);          
     }   
         
-    function create()
+    function create($item_id, $item_name)
     {
-        $item_id = $this->input->post('item_id',true);
         $this->db->where('item_id', $item_id);
         $res = $this->db->get(self::$table);
         
         if($res->num_rows == 0)
         {
             return $this->db->insert(self::$table,array(
-                'item_id'=>$item_id,
-                'item_name'=>$this->input->post('item_name',true)         
+                'item_id'   => $item_id,
+                'item_name' => $item_name
             ));
         }
         else
@@ -93,11 +91,11 @@ class M_item extends CI_Model
         
     }
     
-    function update($item_id)
+    function update($item_id, $item_name)
     {
         $this->db->where('item_id', $item_id);
         return $this->db->update(self::$table,array(
-            'item_name'=>$this->input->post('item_name',true)
+            'item_name' => $item_name
         ));
     }
     
@@ -114,8 +112,8 @@ class M_item extends CI_Model
         if($res->num_rows == 0)
         {
             return $this->db->insert(self::$table,array(
-                'item_id'=>$item_id,
-                'item_name'=>$item_name
+                'item_id'   => $item_id,
+                'item_name' => $item_name
             ));
         }
         else

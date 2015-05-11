@@ -31,7 +31,10 @@ class Customer extends CI_Controller {
         if(!isset($_POST))	
             show_404();
 
-        if($this->record->create())
+        $cust_id    = addslashes($_POST['cust_id']);
+        $cust_name  = addslashes($_POST['cust_name']);
+        
+        if($this->record->create($cust_id, $cust_name))
         {
             echo json_encode(array('success'=>true));
         }
@@ -46,10 +49,12 @@ class Customer extends CI_Controller {
         $auth       = new Auth();
         $auth->restrict();
         
+        $cust_name  = addslashes($_POST['cust_name']);
+        
         if(!isset($_POST))	
             show_404();
 
-        if($this->record->update($cust_id))
+        if($this->record->update($cust_id, $cust_name))
         {
             echo json_encode(array('success'=>true));
         }

@@ -31,7 +31,10 @@ class Item extends CI_Controller {
         if(!isset($_POST))	
             show_404();
 
-        if($this->record->create())
+        $item_id    = addslashes($_POST['item_id']);
+        $item_name  = addslashes($_POST['item_name']);
+        
+        if($this->record->create($item_id, $item_name))
         {
             echo json_encode(array('success'=>true));
         }
@@ -49,7 +52,9 @@ class Item extends CI_Controller {
         if(!isset($_POST))	
             show_404();
 
-        if($this->record->update($item_id))
+        $item_name  = addslashes($_POST['item_name']);
+        
+        if($this->record->update($item_id, $item_name))
         {
             echo json_encode(array('success'=>true));
         }

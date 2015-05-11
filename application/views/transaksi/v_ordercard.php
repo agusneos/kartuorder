@@ -109,6 +109,10 @@
         text:'Update Tgl. Packing Between',
         iconCls:'icon-date',
         handler:function(){transaksiOrdercardBetween();}
+    },{
+        text:'Cek Total Entry Data',
+        iconCls:'icon-date',
+        handler:function(){transaksiOrdercardCheck();}
     }];
     
     $('#grid-transaksi_ordercard').datagrid({view:scrollview,remoteFilter:true,
@@ -431,6 +435,33 @@
         });
     }
     
+    function transaksiOrdercardCheck()
+    {
+        $('#dlg-transaksi_ordercard-check').dialog({modal: true, closable: false}).dialog('open').dialog('setTitle','Check Total Entry Data per Tanggal');
+        $('#fm-transaksi_ordercard-check').form('clear');
+        url = '<?php echo site_url('transaksi/ordercard/check'); ?>';
+    }
+    
+    function transaksiOrdercardCheckSave()
+    {
+        $('#fm-transaksi_ordercard-check').form('submit',{
+            url: url,
+            onSubmit: function(){
+                return $(this).form('validate');
+            },
+            success: function(result){
+                var result = eval('('+result+')');
+                if(result.success)
+                {
+                    $.messager.show({
+                        title: 'Info',
+                        msg: 'Total Entry Data Tanggal '+result.tgl+' Sebanyak '+result.total+' Data'
+                    }); 
+                }                               
+            }
+        });
+    }
+    
 </script>
 <style type="text/css">
     #fm-transaksi_ordercard{
@@ -609,6 +640,22 @@
 <div id="dlg-buttons-transaksi_ordercard-between">
     <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-ok" onclick="transaksiOrdercardBetweenSave()">Simpan</a>
     <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-cancel" onclick="javascript:$('#dlg-transaksi_ordercard-between').dialog('close')">Batal</a>
+</div>
+
+
+<div id="dlg-transaksi_ordercard-check" class="easyui-dialog" style="width:400px; height:200px; padding: 10px 20px" closed="true" buttons="#dlg-buttons-transaksi_ordercard-check">
+    <form id="fm-transaksi_ordercard-check" method="post" novalidate>        
+        <div class="fitem">
+            <label for="type">Tanggal Packing</label>
+            <input type="text" id="check_date" name="check_date" class="easyui-datebox" required="true"/>
+        </div>
+    </form>
+</div>
+
+<!-- Dialog Button -->
+<div id="dlg-buttons-transaksi_ordercard-check">
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-ok" onclick="transaksiOrdercardCheckSave()">Check</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-cancel" onclick="javascript:$('#dlg-transaksi_ordercard-check').dialog('close')">Batal</a>
 </div>
 <!-- End of file v_ordercard.php -->
 <!-- Location: ./application/views/transaksi/v_ordercard.php -->

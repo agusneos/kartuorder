@@ -52,8 +52,7 @@ class M_customer extends CI_Model
 	}
         
         $this->db->where($cond, NULL, FALSE);
-        $this->db->from(self::$table);
-        $total  = $this->db->count_all_results();
+        $total  = $this->db->count_all_results(self::$table);
         
         $this->db->where($cond, NULL, FALSE);
         $this->db->order_by($sort, $order);
@@ -73,17 +72,16 @@ class M_customer extends CI_Model
         return json_encode($result);          
     }   
         
-    function create()
+    function create($cust_id, $cust_name)
     {
-        $cust_id = $this->input->post('cust_id',true);
         $this->db->where('cust_id', $cust_id);
         $res = $this->db->get(self::$table);
         
         if($res->num_rows == 0)
         {            
             return $this->db->insert(self::$table,array(
-                'cust_id'=>$cust_id,
-                'cust_name'=>$this->input->post('cust_name',true)         
+                'cust_id'   => $cust_id,
+                'cust_name' => $cust_name        
             ));
         }
         else
@@ -93,11 +91,11 @@ class M_customer extends CI_Model
         
     }
     
-    function update($cust_id)
+    function update($cust_id, $cust_name)
     {
         $this->db->where('cust_id', $cust_id);
         return $this->db->update(self::$table,array(
-            'cust_name'=>$this->input->post('cust_name',true)
+            'cust_name' => $cust_name
         ));
     }
     
@@ -114,8 +112,8 @@ class M_customer extends CI_Model
         if($res->num_rows == 0)
         {
             return $this->db->insert(self::$table,array(
-                'cust_id'=>$cust_id,
-                'cust_name'=>$cust_name
+                'cust_id'   => $cust_id,
+                'cust_name' => $cust_name
             ));
         }
         else

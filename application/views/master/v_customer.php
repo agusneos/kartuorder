@@ -4,7 +4,7 @@
 
 <!-- Data Grid -->
 <table id="grid-master_customer"
-    data-options="pageSize:50, multiSort:true, remoteSort:false, rownumbers:true, singleSelect:true, 
+    data-options="pageSize:50, multiSort:true, remoteSort:true, rownumbers:true, singleSelect:true, 
                 fit:true, fitColumns:true, toolbar:toolbar_master_customer">
     <thead>
         <tr>
@@ -46,14 +46,16 @@
         $('#dlg-master_customer').dialog({modal: true}).dialog('open').dialog('setTitle','Tambah Data');
         $('#fm-master_customer').form('clear');
         url = '<?php echo site_url('master/customer/create'); ?>';
+        $('#cust_id').textbox('enable');
     }
     
     function masterCustomerUpdate() {
         var row = $('#grid-master_customer').datagrid('getSelected');
         if(row){
-            $('#dlg-master_customer-edit').dialog({modal: true}).dialog('open').dialog('setTitle','Edit Data');
-            $('#fm-master_customer-edit').form('load',row);
-            url = '<?php echo site_url('master/customer/update'); ?>/' + row.cust_id;            
+            $('#dlg-master_customer').dialog({modal: true}).dialog('open').dialog('setTitle','Edit Data');
+            $('#fm-master_customer').form('load',row);
+            url = '<?php echo site_url('master/customer/update'); ?>/' + row.cust_id;
+            $('#cust_id').textbox('disable');
         }
         else
         {
@@ -85,32 +87,7 @@
             }
         });
     }
-    
-    function masterCustomerSaveEdit(){
-        $('#fm-master_customer-edit').form('submit',{
-            url: url,
-            onSubmit: function(){
-                return $(this).form('validate');
-            },
-            success: function(result){
-                var result = eval('('+result+')');
-                if(result.success){
-                    $('#dlg-master_customer-edit').dialog('close');
-                    $('#grid-master_customer').datagrid('reload');
-                    $.messager.show({
-                        title: 'Info',
-                        msg: 'Ubah Data Berhasil'
-                    });
-                } else {
-                    $.messager.show({
-                        title: 'Error',
-                        msg: 'Ubah Data Gagal'
-                    });
-                }
-            }
-        });
-    }
-    
+        
     function masterCustomerHapus(){
         var row = $('#grid-master_customer').datagrid('getSelected');
         if (row){
@@ -183,10 +160,6 @@
         margin:0;
         padding:10px 30px;
     }
-     #fm-master_customer-edit{
-        margin:0;
-        padding:10px 30px;
-    }
     #fm-master_customer-upload{
         margin:0;
         padding:10px 30px;
@@ -245,19 +218,5 @@
     <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-cancel" onclick="javascript:$('#dlg-master_customer').dialog('close')">Batal</a>
 </div>
 
-<div id="dlg-master_customer-edit" class="easyui-dialog" style="width:600px; height:300px; padding: 10px 20px" closed="true" buttons="#dlg-buttons-master_customer-edit">
-    <form id="fm-master_customer-edit" method="post" novalidate>        
-        <div class="fitem">
-            <label for="type">Nama Pelanggan</label>
-            <input type="text" id="cust_name" name="cust_name" style="width:350px;" class="easyui-textbox" required="true"/>
-        </div>
-    </form>
-</div>
-
-<!-- Dialog Button -->
-<div id="dlg-buttons-master_customer-edit">
-    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-ok" onclick="masterCustomerSaveEdit()">Simpan</a>
-    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-cancel" onclick="javascript:$('#dlg-master_customer-edit').dialog('close')">Batal</a>
-</div>
 <!-- End of file v_customer.php -->
 <!-- Location: ./application/views/master/v_customer.php -->

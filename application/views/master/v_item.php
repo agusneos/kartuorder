@@ -46,15 +46,16 @@
         $('#dlg-master_item').dialog({modal: true}).dialog('open').dialog('setTitle','Tambah Data');
         $('#fm-master_item').form('clear');
         url = '<?php echo site_url('master/item/create'); ?>';
+        $('#item_id').textbox('enable');
     }
     
     function masterItemUpdate() {
         var row = $('#grid-master_item').datagrid('getSelected');
         if(row){
-            $('#dlg-master_item-edit').dialog({modal: true}).dialog('open').dialog('setTitle','Edit Data');
-            $('#fm-master_item-edit').form('load',row);
+            $('#dlg-master_item').dialog({modal: true}).dialog('open').dialog('setTitle','Edit Data');
+            $('#fm-master_item').form('load',row);
             url = '<?php echo site_url('master/item/update'); ?>/' + row.item_id;
-            
+            $('#item_id').textbox('disable');
         }
         else
         {
@@ -81,31 +82,6 @@
                     $.messager.show({
                         title: 'Error',
                         msg: 'Input Data Gagal'
-                    });
-                }
-            }
-        });
-    }
-    
-    function masterItemSaveEdit(){
-        $('#fm-master_item-edit').form('submit',{
-            url: url,
-            onSubmit: function(){
-                return $(this).form('validate');
-            },
-            success: function(result){
-                var result = eval('('+result+')');
-                if(result.success){
-                    $('#dlg-master_item-edit').dialog('close');
-                    $('#grid-master_item').datagrid('reload');
-                    $.messager.show({
-                        title: 'Info',
-                        msg: 'Ubah Data Berhasil'
-                    });
-                } else {
-                    $.messager.show({
-                        title: 'Error',
-                        msg: 'Ubah Data Gagal'
                     });
                 }
             }
@@ -184,10 +160,6 @@
         margin:0;
         padding:10px 30px;
     }
-     #fm-master_item-edit{
-        margin:0;
-        padding:10px 30px;
-    }
     #fm-master_item-upload{
         margin:0;
         padding:10px 30px;
@@ -246,19 +218,5 @@
     <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-cancel" onclick="javascript:$('#dlg-master_item').dialog('close')">Batal</a>
 </div>
 
-<div id="dlg-master_item-edit" class="easyui-dialog" style="width:600px; height:300px; padding: 10px 20px" closed="true" buttons="#dlg-buttons-master_item-edit">
-    <form id="fm-master_item-edit" method="post" novalidate>        
-        <div class="fitem">
-            <label for="type">Nama Barang</label>
-            <input type="text" id="item_name" name="item_name" style="width:350px;" class="easyui-textbox" required="true"/>
-        </div>
-    </form>
-</div>
-
-<!-- Dialog Button -->
-<div id="dlg-buttons-master_item-edit">
-    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-ok" onclick="masterItemSaveEdit()">Simpan</a>
-    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-cancel" onclick="javascript:$('#dlg-master_item-edit').dialog('close')">Batal</a>
-</div>
 <!-- End of file v_item.php -->
 <!-- Location: ./application/views/master/v_item.php -->

@@ -123,14 +123,6 @@ class Ordercard extends CI_Controller {
         
     }
     
-    function getLot()
-    {
-        $auth       = new Auth();
-        $auth->restrict();
-        
-        echo $this->record->getLot();
-    } 
-    
     function getDatePacking()
     {
         $auth       = new Auth();
@@ -242,6 +234,19 @@ class Ordercard extends CI_Controller {
         {
             echo json_encode(array('success'=>false));
         }
+    }
+    
+    function check()
+    {
+        $auth       = new Auth();
+        $auth->restrict();
+        
+        if(!isset($_POST))	
+            show_404();
+        
+        $check_date     = addslashes($_POST['check_date']);
+        echo $this->record->check($check_date);  
+        
     }
                 
 }
