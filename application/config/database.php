@@ -50,7 +50,7 @@ $active_record = TRUE;
 
 $db['default']['hostname'] = 'localhost';
 $db['default']['username'] = 'root';
-$db['default']['password'] = 'klamath';
+$db['default']['password'] = '1td3pt2013';
 $db['default']['database'] = 'kartuorder';
 $db['default']['dbdriver'] = 'mysql';
 $db['default']['dbprefix'] = '';
